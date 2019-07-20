@@ -138,6 +138,18 @@ AddEventHandler('es_wsync:blackout', function(source)
 	end
 end)
 
+TriggerEvent('es:addGroupCommand', 'blackout', 'admin', function(source, args, user)
+	TriggerEvent('es_wsync:blackout', source)
+end, function(source, args, user)
+	TriggerClientEvent('chatMessage', source, "SYSTEM", {255, 0, 0}, "Insufficient Permissions.")
+end, {help = ""})
+
+TriggerEvent('es:addGroupCommand', 'freeze_time', 'admin', function(source, args, user)
+	TriggerEvent('es_wsync:freeze_time', source)
+end, function(source, args, user)
+	TriggerClientEvent('chatMessage', source, "SYSTEM", {255, 0, 0}, "Insufficient Permissions.")
+end, {help = ""})
+
 RegisterServerEvent('es_wsync:morning')
 AddEventHandler('es_wsync:morning', function(source)
 	if source == 0 then

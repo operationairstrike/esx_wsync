@@ -12,27 +12,32 @@ AddEventHandler('es_wsync:updateWeather', function(NewWeather, newblackout)
 	blackout = newblackout
 end)
 
+function changeWeather(weather)
+	if lastWeather == weather then
+		return
+	end
+
+	ClearWeatherTypePersist()
+	ClearOverrideWeather()
+	SetWeatherTypeOverTime(weather, 15.0)
+	Citizen.Wait(14990)
+	SetOverrideWeather(weather)
+
+	if CurrentWeather == 'XMAS' then
+		SetForceVehicleTrails(true)
+		SetForcePedFootstepsTracks(true)
+	else
+		SetForceVehicleTrails(false)
+		SetForcePedFootstepsTracks(false)
+	end
+
+	lastWeather = weather
+end
+
 Citizen.CreateThread(function()
 	while true do
-		if lastWeather ~= CurrentWeather then
-			lastWeather = CurrentWeather
-			SetWeatherTypeOverTime(CurrentWeather, 15.0)
-			Citizen.Wait(15000)
-		end
-		Citizen.Wait(100) -- Wait 0 seconds to prevent crashing.
-		SetBlackout(blackout)
-		ClearOverrideWeather()
-		ClearWeatherTypePersist()
-		SetWeatherTypePersist(lastWeather)
-		SetWeatherTypeNow(lastWeather)
-		SetWeatherTypeNowPersist(lastWeather)
-		if lastWeather == 'XMAS' then
-			SetForceVehicleTrails(true)
-			SetForcePedFootstepsTracks(true)
-		else
-			SetForceVehicleTrails(false)
-			SetForcePedFootstepsTracks(false)
-		end
+		changeWeather(CurrentWeather)
+		Citizen.Wait(100)
 	end
 end)
 

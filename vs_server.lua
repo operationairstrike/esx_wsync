@@ -259,7 +259,7 @@ end, {help = "Change the time", params = {{ name="hours", help="A number between
 
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
+		Citizen.Wait(500)
 		local newBaseTime = os.time(os.date("!*t"))/2 + 360
 		if freezeTime then
 			timeOffset = timeOffset + baseTime - newBaseTime

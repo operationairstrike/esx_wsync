@@ -1,8 +1,7 @@
 CurrentWeather = 'EXTRASUNNY'
-local lastWeather = CurrentWeather
-local baseTime = 0
-local timeOffset = 0
-local timer = 0
+local lastWeather = ''
+local serverTime = 0
+local clientTime = 0
 local freezeTime = false
 local blackout = false
 
@@ -50,27 +49,47 @@ end)
 RegisterNetEvent('es_wsync:updateTime')
 AddEventHandler('es_wsync:updateTime', function(base, offset, freeze)
 	freezeTime = freeze
-	timeOffset = offset
-	baseTime = base
+	serverTime = base+offset
 end)
 
 Citizen.CreateThread(function()
 	local hour = 0
 	local minute = 0
+	local second = 0
+	local timer = GetGameTimer()
+
 	while true do
 		Citizen.Wait(0)
-		local newBaseTime = baseTime
-		if GetGameTimer() - 500  > timer then
-			newBaseTime = newBaseTime + 0.25
+		local newClientTime = clientTime
+		local deltaTime = 0
+
+		if GetGameTimer() > timer and not freezeTime then
+			deltaTime = (GetGameTimer() - timer)/1000.0
 			timer = GetGameTimer()
 		end
-		if freezeTime then
-			timeOffset = timeOffset + baseTime - newBaseTime
+
+		serverTime = serverTime + deltaTime
+
+		-- instant change for large amounts of time
+		if math.abs(serverTime - clientTime) > 10.0 then
+			clientTime = serverTime
 		end
-		baseTime = newBaseTime
-		hour = math.floor(((baseTime+timeOffset)/60)%24)
-		minute = math.floor((baseTime+timeOffset)%60)
-		NetworkOverrideClockTime(hour, minute, 0)
+
+		-- time adjust for small changes
+		if clientTime > serverTime then
+			clientTime = clientTime + deltaTime*0.5
+		else
+			clientTime = clientTime + deltaTime
+		end
+
+		-- x2 speedup for medium range changes
+		if (clientTime < serverTime-1) then
+			clientTime = clientTime + deltaTime
+		end
+
+		hour, minute, second = timeToHMS(clientTime)
+
+		NetworkOverrideClockTime(hour, minute, second)
 	end
 end)
 

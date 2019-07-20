@@ -207,6 +207,21 @@ function ShiftToHour(hour)
 end
 
 TriggerEvent('es:addGroupCommand', 'time', 'admin', function(source, args, user)
+
+	if args[2] == nil and args[1] ~= nil then
+		args = string.split(args[1], ":")
+
+	elseif args[1] == nil then
+		local hour, minute, second = timeToHMS(baseTime+timeOffset)
+		if source == 0 then
+			print(string.format("Current time %2i:%2i",hour,minute))
+		else
+			TriggerClientEvent('esx:showNotification', source, 'Time is: ~y~' .. string.format("%2i:%02i",hour,minute) .. "~s~")
+		end
+
+		return
+	end
+
 	if source == 0 then
 		if tonumber(args[1]) ~= nil and tonumber(args[2]) ~= nil then
 			local argh = tonumber(args[1])
@@ -261,6 +276,7 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(500)
 		local newBaseTime = os.time(os.date("!*t"))/2 + 360
+
 		if freezeTime then
 			timeOffset = timeOffset + baseTime - newBaseTime
 		end

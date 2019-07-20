@@ -1,4 +1,5 @@
 # es_wsync
+# DRAFT fork from [es_wsync](https://github.com/StockholmCityRP/es_wsync), use at your own risk!
 Simple weather and time sync script for FiveM servers.
 
 ### Requirements

@@ -6,10 +6,16 @@ local timer = 0
 local freezeTime = false
 local blackout = false
 
+SetBlackout(blackout)
+
 RegisterNetEvent('es_wsync:updateWeather')
 AddEventHandler('es_wsync:updateWeather', function(NewWeather, newblackout)
+	if newblackout ~= blackout then
+		SetBlackout(newblackout)
+		blackout = newblackout
+	end
+
 	CurrentWeather = NewWeather
-	blackout = newblackout
 end)
 
 function changeWeather(weather)

@@ -187,11 +187,11 @@ AddEventHandler('es_wsync:night', function(source)
 end)
 
 function ShiftToMinute(minute)
-	timeOffset = timeOffset - ( ( (baseTime+timeOffset) % 60 ) - minute )
+	timeOffset = timeOffset - ( ( math.floor(baseTime+timeOffset) % 60 ) - minute )
 end
 
 function ShiftToHour(hour)
-	timeOffset = timeOffset - ( ( ((baseTime+timeOffset)/60) % 24 ) - hour ) * 60
+	timeOffset = timeOffset - ( ( math.floor((baseTime+timeOffset)/60) % 24 ) - hour ) * 60
 end
 
 TriggerEvent('es:addGroupCommand', 'time', 'admin', function(source, args, user)

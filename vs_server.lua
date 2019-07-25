@@ -1,5 +1,4 @@
-local DynamicWeather = true -- set this to false if you don't want the weather to change automatically every 10 minutes.
-local debugprint = false -- enable debug mode
+local DynamicWeather = Config.DynamicWeather
 
 -------------------- DON'T CHANGE THIS --------------------
 AvailableWeatherTypes = {
@@ -24,7 +23,24 @@ local baseTime = 0
 local timeOffset = 0
 local freezeTime = false
 local blackout = false
-local newWeatherTimer = 10
+local newWeatherTimer = Config.WeatherDuration
+
+function getWeatherDuration(weather)
+	local mult = 1
+	if Config.WeatherDurationMult[weather] ~= nil then
+		local minmax = Config.WeatherDurationMult[weather]
+		if minmax ~= nil then
+			if #minmax >= 2 then
+				mult = math.random(minmax[1],minmax[2])
+			elseif #minmax > 0 then
+				mult = minmax[1]
+			else
+				mult = 1
+			end
+		end
+	end
+	return Config.WeatherDuration * mult
+end
 
 RegisterServerEvent('es_wsync:requestSync')
 AddEventHandler('es_wsync:requestSync', function()
@@ -78,6 +94,7 @@ TriggerEvent('es:addGroupCommand', 'weather', 'admin', function(source, args, us
 			print("Invalid syntax, correct syntax is: /weather <weathertype> ")
 			return
 		else
+			local wtype = ""
 			for i,wtype in ipairs(AvailableWeatherTypes) do
 				if wtype == string.upper(args[1]) then
 					validWeatherType = true
@@ -87,7 +104,7 @@ TriggerEvent('es:addGroupCommand', 'weather', 'admin', function(source, args, us
 			if validWeatherType then
 				print("Weather has been updated.")
 				CurrentWeather = string.upper(args[1])
-				newWeatherTimer = 10
+				newWeatherTimer = getWeatherDuration(wtype)
 				TriggerEvent('es_wsync:requestSync')
 			else
 				print("Invalid weather type, valid weather types are: \nEXTRASUNNY CLEAR NEUTRAL SMOG FOGGY OVERCAST CLOUDS CLEARING RAIN THUNDER SNOW BLIZZARD SNOWLIGHT XMAS HALLOWEEN ")
@@ -98,6 +115,7 @@ TriggerEvent('es:addGroupCommand', 'weather', 'admin', function(source, args, us
 		if args[1] == nil then
 			TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid syntax, use ^0/weather <weatherType> ^1instead!')
 		else
+			local wtype = ""
 			for i,wtype in ipairs(AvailableWeatherTypes) do
 				if wtype == string.upper(args[1]) then
 					validWeatherType = true
@@ -107,7 +125,7 @@ TriggerEvent('es:addGroupCommand', 'weather', 'admin', function(source, args, us
 			if validWeatherType then
 				TriggerClientEvent('esx:showNotification', source, 'Weather will change to: ~y~' .. string.lower(args[1]) .. "~s~.")
 				CurrentWeather = string.upper(args[1])
-				newWeatherTimer = 10
+				newWeatherTimer = getWeatherDuration(wtype)
 				TriggerEvent('es_wsync:requestSync')
 			else
 				TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid weather type, valid weather types are: ^0\nEXTRASUNNY CLEAR NEUTRAL SMOG FOGGY OVERCAST CLOUDS CLEARING RAIN THUNDER SNOW BLIZZARD SNOWLIGHT XMAS HALLOWEEN ')
@@ -306,7 +324,12 @@ Citizen.CreateThread(function()
 			if DynamicWeather then
 				NextWeatherStage()
 			end
-			newWeatherTimer = 10
+			newWeatherTimer = getWeatherDuration(CurrentWeather)
+
+			if Config.Debug then
+				print("[es_wsync] New random weather type has been generated: " .. CurrentWeather .. ".\n")
+				print("[es_wsync] Resetting timer to "..newWeatherTimer.." min.\n")
+			end
 		end
 	end
 end)
@@ -340,9 +363,5 @@ function NextWeatherStage()
 		CurrentWeather = "CLEAR"
 	end
 	TriggerEvent("es_wsync:requestSync")
-	if debugprint then
-		print("[es_wsync] New random weather type has been generated: " .. CurrentWeather .. ".\n")
-		print("[es_wsync] Resetting timer to 10 minutes.\n")
-	end
 end
 

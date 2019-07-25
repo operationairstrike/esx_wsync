@@ -22,10 +22,14 @@ function changeWeather(weather)
 		return
 	end
 
-	ClearWeatherTypePersist()
-	ClearOverrideWeather()
 	SetWeatherTypeOverTime(weather, 15.0)
-	Citizen.Wait(14990)
+	local timer1 = GetGameTimer()
+
+	-- strange, but 5 secs works best
+	while (GetGameTimer()-timer1) < 4950 and (GetGameTimer() >= timer1) do
+		Citizen.Wait(0)
+	end
+
 	SetOverrideWeather(weather)
 
 	if CurrentWeather == 'XMAS' then

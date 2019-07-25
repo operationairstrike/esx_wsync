@@ -8,6 +8,7 @@ Simple weather and time sync script for FiveM servers.
 
 ### Fork Extra Features
 - Smoother time synchronization. Moon and clouds should be way smoother.
+- Configuration file, more flexible dynamic weather options.
 - Hopefully fixed sky flickering of original code.
 - Hopefully smoother weather changing (need testing).
 - Extra admin commands.

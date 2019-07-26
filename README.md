@@ -25,13 +25,10 @@ Simple weather and time sync script for FiveM servers.
 - `/freeze_time` Stop game time.
 - `/blackout` Turn off all of the game lights.
 
-
 ### Triggers
-Don't forget to specify the source
-- `es_wsync:morning`
-- `es_wsync:noon`
-- `es_wsync:evening`
-- `es_wsync:night`
-- `es_wsync:blackout`
-- `es_wsync:freeze_time`
-- `es_wsync:freeze_weather`
+Server only:
+- `es_wsync:set_time(hour,minute)`
+Client/server:
+- `es_wsync:blackout(source)`
+- `es_wsync:freeze_time(source)`
+- `es_wsync:freeze_weather(source)`

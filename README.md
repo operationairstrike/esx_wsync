@@ -28,6 +28,7 @@ Simple weather and time sync script for FiveM servers.
 ### Triggers
 Server only:
 - `es_wsync:set_time(hour,minute)`
+
 Client/server:
 - `es_wsync:blackout(source)`
 - `es_wsync:freeze_time(source)`

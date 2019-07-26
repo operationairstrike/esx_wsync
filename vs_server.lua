@@ -168,52 +168,28 @@ end, function(source, args, user)
 	TriggerClientEvent('chatMessage', source, "SYSTEM", {255, 0, 0}, "Insufficient Permissions.")
 end, {help = ""})
 
-RegisterServerEvent('es_wsync:morning')
-AddEventHandler('es_wsync:morning', function(source)
-	if source == 0 then
-		print("For console, use the \"/time <hh> <mm>\" command instead!")
-		return
-	end
-	ShiftToMinute(0)
-	ShiftToHour(9)
-	TriggerClientEvent('esx:showNotification', source, 'Time set to ~y~morning~s~.')
-	TriggerEvent('es_wsync:requestSync')
-end)
+RegisterServerEvent('es_wsync:set_time')
+AddEventHandler('es_wsync:set_time', function(hh, mm, cb)
+	hh = tonumber(hh)
+	mm = tonumber(mm)
 
-RegisterServerEvent('es_wsync:noon')
-AddEventHandler('es_wsync:noon', function(source)
-	if source == 0 then
-		print("For console, use the \"/time <hh> <mm>\" command instead!")
-		return
+	if mm > 60 or mm < 0 then
+		mm = 0
 	end
-	ShiftToMinute(0)
-	ShiftToHour(12)
-	TriggerClientEvent('esx:showNotification', source, 'Time set to ~y~noon~s~.')
-	TriggerEvent('es_wsync:requestSync')
-end)
 
-RegisterServerEvent('es_wsync:evening')
-AddEventHandler('es_wsync:evening', function(source)
-	if source == 0 then
-		print("For console, use the \"/time <hh> <mm>\" command instead!")
-		return
+	if hh > 23 or hh < 0 then
+		hh = 0
 	end
-	ShiftToMinute(0)
-	ShiftToHour(18)
-	TriggerClientEvent('esx:showNotification', source, 'Time set to ~y~evening~s~.')
-	TriggerEvent('es_wsync:requestSync')
-end)
 
-RegisterServerEvent('es_wsync:night')
-AddEventHandler('es_wsync:night', function(source)
-	if source == 0 then
-		print("For console, use the \"/time <hh> <mm>\" command instead!")
-		return
-	end
-	ShiftToMinute(0)
-	ShiftToHour(23)
-	TriggerClientEvent('esx:showNotification', source, 'Time set to ~y~night~s~.')
+	ShiftToMinute(mm)
+	ShiftToHour(hh)
 	TriggerEvent('es_wsync:requestSync')
+
+	print(string.format("Time has changed to %02d:%02d.", hh, mm))
+
+	if cb ~= nil then
+		cb()
+	end
 end)
 
 function ShiftToMinute(minute)
@@ -232,7 +208,7 @@ TriggerEvent('es:addGroupCommand', 'time', 'admin', function(source, args, user)
 	elseif args[1] == nil then
 		local hour, minute, second = timeToHMS(baseTime+timeOffset)
 		if source == 0 then
-			print(string.format("Current time %2i:%2i",hour,minute))
+			print(string.format("Current time %02i:%02i",hour,minute))
 		else
 			TriggerClientEvent('esx:showNotification', source, 'Time is: ~y~' .. string.format("%2i:%02i",hour,minute) .. "~s~")
 		end
@@ -244,18 +220,7 @@ TriggerEvent('es:addGroupCommand', 'time', 'admin', function(source, args, user)
 		if tonumber(args[1]) ~= nil and tonumber(args[2]) ~= nil then
 			local argh = tonumber(args[1])
 			local argm = tonumber(args[2])
-			if argh < 24 then
-				ShiftToHour(argh)
-			else
-				ShiftToHour(0)
-			end
-			if argm < 60 then
-				ShiftToMinute(argm)
-			else
-				ShiftToMinute(0)
-			end
-			print("Time has changed to " .. argh .. ":" .. argm .. ".")
-			TriggerEvent('es_wsync:requestSync')
+			TriggerEvent('es_wsync:set_time', argh, argm)
 		else
 			print("Invalid syntax, correct syntax is: time <hour> <minute> !")
 		end
@@ -263,25 +228,11 @@ TriggerEvent('es:addGroupCommand', 'time', 'admin', function(source, args, user)
 		if tonumber(args[1]) ~= nil and tonumber(args[2]) ~= nil then
 			local argh = tonumber(args[1])
 			local argm = tonumber(args[2])
-			if argh < 24 then
-				ShiftToHour(argh)
-			else
-				ShiftToHour(0)
-			end
-			if argm < 60 then
-				ShiftToMinute(argm)
-			else
-				ShiftToMinute(0)
-			end
-			local newtime = math.floor(((baseTime+timeOffset)/60)%24) .. ":"
-			local minute = math.floor((baseTime+timeOffset)%60)
-			if minute < 10 then
-				newtime = newtime .. "0" .. minute
-			else
-				newtime = newtime .. minute
-			end
-			TriggerClientEvent('esx:showNotification', source, 'Time was changed to: ~y~' .. newtime .. "~s~!")
-			TriggerEvent('es_wsync:requestSync')
+
+			TriggerEvent('es_wsync:set_time', argh, argm, function()
+				local h, m, _ = timeToHMS(baseTime+timeOffset)
+				TriggerClientEvent('esx:showNotification', source, string.format('Time has changed to: ~y~%02d:%02d~s~!', h, m))
+			end)
 		else
 			TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid syntax. Use ^0/time <hour> <minute> ^1instead!')
 		end
@@ -298,6 +249,15 @@ Citizen.CreateThread(function()
 		if freezeTime then
 			timeOffset = timeOffset + baseTime - newBaseTime
 		end
+
+		local h1,_,_ = timeToHMS(baseTime+timeOffset)
+		local h2,_,_ = timeToHMS(newBaseTime+timeOffset)
+
+		if h2 ~= h1 then
+			TriggerEvent('es_wsync:hour_started', h2)
+			TriggerClientEvent('es_wsync:hour_started', -1, h2)
+		end
+
 		baseTime = newBaseTime
 	end
 end)

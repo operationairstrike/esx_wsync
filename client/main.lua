@@ -6,15 +6,16 @@ local freezeTime = false
 local blackout = false
 
 SetArtificialLightsState(blackout)
+SetArtificialLightsStateAffectsVehicles(false)
 
-RegisterNetEvent('esx_wsync:updateWeather', function(NewWeather, newblackout)
-	if newblackout ~= blackout then
-		SetArtificialLightsState(newblackout)
+RegisterNetEvent('esx_wsync:updateWeather', function(newWeather, newBlackout)
+	if newBlackout ~= blackout then
+		SetArtificialLightsState(newBlackout)
 
-		blackout = newblackout
+		blackout = newBlackout
 	end
 
-	CurrentWeather = NewWeather
+	CurrentWeather = newWeather
 end)
 
 function changeWeather(weather)
@@ -27,7 +28,7 @@ function changeWeather(weather)
 	local timer = GetGameTimer()
 
 	-- strange, but 5 secs works best
-	while (GetGameTimer() - timer) < 4950 and (GetGameTimer() >= timer) do
+	while (GetGameTimer() - timer) < 4950 and GetGameTimer() >= timer do
 		Citizen.Wait(0)
 	end
 

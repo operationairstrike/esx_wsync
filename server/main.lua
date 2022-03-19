@@ -98,8 +98,8 @@ ESX.RegisterCommand('weather', 'admin', function(xPlayer, args, showError)
 	local validWeatherType = false
 	local weatherType = ""
 
-	for k, weatherType in ipairs(AvailableWeatherTypes) do
-		if v == string.upper(args.weatherType) then
+	for _, weatherType in ipairs(AvailableWeatherTypes) do
+		if weatherType == string.upper(args.weatherType) then
 			validWeatherType = true
 			break
 		end
@@ -108,7 +108,7 @@ ESX.RegisterCommand('weather', 'admin', function(xPlayer, args, showError)
 	if validWeatherType then
 		TriggerClientEvent('esx:showNotification', xPlayer.source, 'Weather will change to: ~y~' .. string.lower(args.weatherType) .. "~s~.")
 
-		CurrentWeather = string.upper(args[1])
+		CurrentWeather = string.upper(args.weatherType)
 		newWeatherTimer = getWeatherDuration(weatherType)
 
 		TriggerEvent('esx_wsync:requestSync')
@@ -145,8 +145,12 @@ ESX.RegisterCommand('blackout', 'admin', function(xPlayer, args, showError)
 	TriggerEvent('esx_wsync:blackout', xPlayer.source)
 end, false)
 
-ESX.RegisterCommand('freeze_time', 'admin', function(xPlayer, args, showError)
+ESX.RegisterCommand('freezetime', 'admin', function(xPlayer, args, showError)
 	TriggerEvent('esx_wsync:freeze_time', xPlayer.source)
+end, false)
+
+ESX.RegisterCommand('freezeweather', 'admin', function(xPlayer, args, showError)
+	TriggerEvent('esx_wsync:freeze_weather', xPlayer.source)
 end, false)
 
 RegisterNetEvent('esx_wsync:set_time', function(hh, mm, cb)

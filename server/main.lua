@@ -53,7 +53,7 @@ RegisterNetEvent('esx_wsync:requestSync', function()
 	TriggerClientEvent('esx_wsync:updateTime', -1, baseTime, timeOffset, freezeTime)
 end)
 
-RegisterNetEvent('es_wsync:freeze_time', function(source)
+RegisterNetEvent('esx_wsync:freeze_time', function(source)
 	-- check for console user
 	if source ~= 0 then
 		freezeTime = not freezeTime
@@ -74,7 +74,7 @@ RegisterNetEvent('es_wsync:freeze_time', function(source)
 	end
 end)
 
-RegisterNetEvent('es_wsync:freeze_weather', function(source)
+RegisterNetEvent('esx_wsync:freeze_weather', function(source)
 	if source ~= 0 then
 		DynamicWeather = not DynamicWeather
 
@@ -149,7 +149,7 @@ ESX.RegisterCommand('freeze_time', 'admin', function(xPlayer, args, showError)
 	TriggerEvent('esx_wsync:freeze_time', xPlayer.source)
 end, false)
 
-RegisterNetEvent('es_wsync:set_time', function(hh, mm, cb)
+RegisterNetEvent('esx_wsync:set_time', function(hh, mm, cb)
 	hh = tonumber(hh)
 	mm = tonumber(mm)
 
@@ -182,7 +182,7 @@ function ShiftToHour(hour)
 end
 
 ESX.RegisterCommand('time', 'admin', function(xPlayer, args, showError)
-	TriggerEvent('es_wsync:set_time', args.hours, args.minutes, function()
+	TriggerEvent('esx_wsync:set_time', args.hours, args.minutes, function()
 		local h, m, _ = timeToHMS(baseTime + timeOffset)
 
 		TriggerClientEvent('esx:showNotification', source, string.format('Time has changed to: ~y~%02d:%02d~s~!', h, m))

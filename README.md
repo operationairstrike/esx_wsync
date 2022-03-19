@@ -1,16 +1,14 @@
-# es_wsync
-# DRAFT fork from [es_wsync](https://github.com/StockholmCityRP/es_wsync), use at your own risk!
+# esx_wsync
 Simple weather and time sync script for FiveM servers.
 
 ### Requirements
-- ES
 - ESX
 
 ### Fork Extra Features
 - Smoother time synchronization. Moon and clouds should be way smoother.
 - Configuration file, more flexible dynamic weather options.
 - Hopefully fixed sky flickering of original code.
-- Hopefully smoother weather changing (need testing).
+- Hopefully smoother weather changing.
 - Extra admin commands.
 
 ### Features
@@ -27,9 +25,9 @@ Simple weather and time sync script for FiveM servers.
 
 ### Triggers
 Server only:
-- `es_wsync:set_time(hour,minute)`
+- `esx_wsync:set_time(hour, minute)`
 
 Client/server:
-- `es_wsync:blackout(source)`
-- `es_wsync:freeze_time(source)`
-- `es_wsync:freeze_weather(source)`
+- `esx_wsync:blackout(source)`
+- `esx_wsync:freeze_time(source)`
+- `esx_wsync:freeze_weather(source)`

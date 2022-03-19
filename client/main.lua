@@ -1,16 +1,16 @@
-CurrentWeather = 'EXTRASUNNY'
+local CurrentWeather = 'EXTRASUNNY'
 local lastWeather = ''
 local serverTime = 0
 local clientTime = 0
 local freezeTime = false
 local blackout = false
 
-SetBlackout(blackout)
+SetArtificialLightsState(blackout)
 
-RegisterNetEvent('es_wsync:updateWeather')
-AddEventHandler('es_wsync:updateWeather', function(NewWeather, newblackout)
+RegisterNetEvent('esx_wsync:updateWeather', function(NewWeather, newblackout)
 	if newblackout ~= blackout then
-		SetBlackout(newblackout)
+		SetArtificialLightsState(newblackout)
+
 		blackout = newblackout
 	end
 
@@ -22,11 +22,12 @@ function changeWeather(weather)
 		return
 	end
 
-	SetWeatherTypeOverTime(weather, 15.0)
-	local timer1 = GetGameTimer()
+	SetWeatherTypeOvertimePersist(weather, 15.0)
+
+	local timer = GetGameTimer()
 
 	-- strange, but 5 secs works best
-	while (GetGameTimer()-timer1) < 4950 and (GetGameTimer() >= timer1) do
+	while (GetGameTimer() - timer) < 4950 and (GetGameTimer() >= timer) do
 		Citizen.Wait(0)
 	end
 
@@ -46,14 +47,14 @@ end
 Citizen.CreateThread(function()
 	while true do
 		changeWeather(CurrentWeather)
+
 		Citizen.Wait(100)
 	end
 end)
 
-RegisterNetEvent('es_wsync:updateTime')
-AddEventHandler('es_wsync:updateTime', function(base, offset, freeze)
+RegisterNetEvent('esx_wsync:updateTime', function(base, offset, freeze)
 	freezeTime = freeze
-	serverTime = base+offset
+	serverTime = base + offset
 end)
 
 Citizen.CreateThread(function()
@@ -64,11 +65,12 @@ Citizen.CreateThread(function()
 
 	while true do
 		Citizen.Wait(0)
+
 		local newClientTime = clientTime
 		local deltaTime = 0
 
 		if GetGameTimer() > timer and not freezeTime then
-			deltaTime = (GetGameTimer() - timer)/1000.0
+			deltaTime = (GetGameTimer() - timer) / 1000.0
 			timer = GetGameTimer()
 		end
 
@@ -87,7 +89,7 @@ Citizen.CreateThread(function()
 		end
 
 		-- x2 speedup for medium range changes
-		if (clientTime < serverTime-1) then
+		if clientTime < serverTime - 1 then
 			clientTime = clientTime + deltaTime
 		end
 
@@ -98,5 +100,5 @@ Citizen.CreateThread(function()
 end)
 
 AddEventHandler('playerSpawned', function()
-	TriggerServerEvent('es_wsync:requestSync')
+	TriggerServerEvent('esx_wsync:requestSync')
 end)
